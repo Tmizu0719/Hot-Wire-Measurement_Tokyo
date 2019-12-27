@@ -3,13 +3,13 @@ December 26th 2019
             Author T.Mizumoto
 """
 #! python 3
-# ver.x1.00
+# ver.x2.00
 # GUI.py  -  this program is the GUI program for processing for hot wire measurement.
 
 import tkinter as tk
 from tkinter import filedialog
 import tkinter.scrolledtext as tksc
-from process_function import fun_ROWcalib, fun_CSVcalib
+from process_function import fun_ROWcalib, fun_CSVcalib, fun_CON
 
 class GUI:
     def first_window(self):
@@ -42,7 +42,7 @@ class GUI:
         self.t_lvm = tksc.ScrolledText(fr_lvm, font = ("Arial", 8), wrap = tk.WORD, height = 10)
         # tdms frame
         fr_tdms = tk.LabelFrame(row, text = "tdmsファイル", foreground = "green", font = ("Arial", 12))
-        bt_tdms = tk.Button(fr_tdms, text = "ファイルを選択してください．", \
+        bt_tdms = tk.Button(fr_tdms, text = "ファイルを選択してください", \
             command = lambda: self.get_filepath("tdms", "tdms"), width = 30, height = 1, font = ("Arial", 10), bg = "#bbbbff")
         self.t_tdms = tksc.ScrolledText(fr_tdms, font = ("Arial", 8), wrap = tk.WORD, height = 10)
         # HWR option frame
@@ -143,7 +143,48 @@ class GUI:
         bt_enter.grid(row = 3, columnspan = 2)
 
     def con_window(self):
-        pass
+        con = tk.Toplevel()
+        con.title("流速変換")
+        con.geometry("+300+250")
+        con.focus_set()
+        con.grab_set()
+        # HWR(calibration)
+        fr_cal = tk.LabelFrame(con, text = "熱線の校正データ(Cw_)", foreground = "green", font = ("Arial", 12))
+        bt_cal = tk.Button(fr_cal, text = "ファイルを選択してください", \
+            command = lambda: self.get_filepath("csv", "cal"), width = 30, height = 1, font = ("Arial", 10), bg = "#ffbbbb")
+        self.t_cal = tk.Entry(fr_cal, font = ("Arial", 8), width = 60)
+        # HWR
+        fr_HWR = tk.LabelFrame(con, text = "熱線計測データ(.tdms)", foreground = "green", font = ("Arial", 12))
+        bt_HWR = tk.Button(fr_HWR, text = "ファイルを選択してください", \
+            command = lambda: self.get_filepath("tdms", "HWR"), width = 30, height = 1, font = ("Arial", 10), bg = "#ffbbbb")
+        self.t_HWR = tk.Entry(fr_HWR, font = ("Arial", 8), width = 60)
+        # Traverse
+        fr_traverse = tk.LabelFrame(con, text = "座標点データ", foreground = "green", font = ("Arial", 12))
+        bt_traverse = tk.Button(fr_traverse, text = "ファイルを選択してください", \
+            command = lambda: self.get_filepath("csv", "traverse"), width = 30, height = 1, font = ("Arial", 10), bg = "#ffbbbb")
+        self.t_traverse = tk.Entry(fr_traverse, font = ("Arial", 8), width = 60)
+        # select axis
+        fr_axis = tk.LabelFrame(con, text = "使用する座標軸を選択してください", foreground = "green", font = ("Arial", 12))
+        self.var = tk.IntVar(fr_axis, value = 1)
+        axis_list = ["x", "y", "z"]
+        for i in range(3):
+            radio = tk.Radiobutton(fr_axis, text = axis_list[i], value = i + 1, var = self.var)
+            radio.pack(side = tk.LEFT)
+        # output file name
+        fr_out = tk.LabelFrame(con, text = "出力ファイルの名前", foreground = "green", font = ("Arial", 12))
+        self.t_out = tk.Entry(fr_out, width = 50)
+        self.t_out.insert(tk.END, "output_file_name")
+        # enter button
+        bt_enter = tk.Button(con, text = "実行", command = self.process_CON, width = 20, height = 1, font = ("Arial", 12), bg = "#ff6464") 
+
+        fr_cal.grid(row = 0, column = 0)
+        fr_HWR.grid(row = 0, column = 1)
+        fr_traverse.grid(row = 0, column = 2)
+        fr_axis.grid(row = 1, columnspan = 3)
+        fr_out.grid(row = 2, columnspan = 3)
+        bt_enter.grid(row = 3, columnspan = 3)
+        for i in [bt_cal, self.t_cal, bt_HWR, self.t_HWR, bt_traverse, self.t_traverse, self.t_out]:
+            i.pack()
 
     def process_ROW(self):
         param = self.get_ROWparam()
@@ -152,6 +193,10 @@ class GUI:
     def process_CSV(self):
         param = self.get_CSVparam()
         fun_CSVcalib(param)
+
+    def process_CON(self):
+        param = self.get_CONparam()
+        fun_CON(param)
 
     def get_filepath(self, filetype, name):
         filetype_list = [(filetype + " file", "*." + filetype), ("all file", "*")]
@@ -178,6 +223,12 @@ class GUI:
             param.append(i.get())
         return param
     
+    def get_CONparam(self):
+        param_list = [self.t_cal, self.t_HWR, self.t_traverse, self.var, self.t_out]
+        param = []
+        for i in param_list:
+            param.append(i.get())
+        return param
 
 if __name__ == "__main__":
     gui = GUI()

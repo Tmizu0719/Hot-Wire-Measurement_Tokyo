@@ -3,7 +3,7 @@ December 26th 2019
             Author T.Mizumoto
 """
 #! python 3
-# ver.x1.00
+# ver.x2.00
 # process_function.py  -  this program summarizes each proces
 
 from Pitot import PitotData
@@ -11,6 +11,7 @@ from HWR import HWRData, fun_linearize
 from graph import Graph
 import matplotlib.pyplot as plt
 from traverse import TraverseData
+import pandas as pd
 
 def fun_ROWcalib(param):
     param = param
@@ -102,4 +103,44 @@ def fun_CSVcalib(param):
     graph.save_graph("Cg_" + output_name)
     pitot.save_csv(output_name)
     hwr.save_csv(output_name)
+    graph.show()
+
+def fun_CON(param):
+    param = param
+    output_name = param[4]
+
+    # HWR
+    hwr = HWRData()
+    hwr.csv_read(param[0])
+    hwr.path = param[1]
+    hwr.file_read()
+    print(hwr.df_data)
+    hwr.cal_MandF()
+    hwr.linearize()
+    velocity = hwr.convert_VtoU()
+
+    # Traverse
+    tr = TraverseData()
+    tr.path = param[2]
+    tr.file_read()
+    axis = param[3]
+    if axis == 1:
+        axis = "x"
+    elif axis == 2:
+        axis = "y"
+    elif axis == 3:
+        axis = "z"
+    coordinate = tr.df_coordinate[axis]
+
+    # graph
+    graph = Graph()
+    graph.axis_label = ["measured"]
+    graph.mark(velocity, coordinate, 0)
+    graph.axis_label("velocity", "coordinate")
+    plt.legend()
+
+    # save
+    df_VandC = pd.DataFrame([velocity, coordinate], columns = ["velocity", "coordinate"], index = range(len(velocity)))
+    df_VandC.to_csv(output_name + "csv")
+    graph.save_graph(output_name + "png")
     graph.show()
