@@ -3,7 +3,7 @@ December 26th 2019
             Author T.Mizumoto
 """
 #! python 3
-# ver.x2.00
+# ver.x2.10
 # GUI.py  -  this program is the GUI program for processing for hot wire measurement.
 
 import tkinter as tk
@@ -157,7 +157,7 @@ class GUI:
         fr_HWR = tk.LabelFrame(con, text = "熱線計測データ(.tdms)", foreground = "green", font = ("Arial", 12))
         bt_HWR = tk.Button(fr_HWR, text = "ファイルを選択してください", \
             command = lambda: self.get_filepath("tdms", "HWR"), width = 30, height = 1, font = ("Arial", 10), bg = "#ffbbbb")
-        self.t_HWR = tk.Entry(fr_HWR, font = ("Arial", 8), width = 60)
+        self.t_HWR = tksc.ScrolledText(fr_HWR, font = ("Arial", 8), wrap = tk.WORD, height = 10)
         # Traverse
         fr_traverse = tk.LabelFrame(con, text = "座標点データ", foreground = "green", font = ("Arial", 12))
         bt_traverse = tk.Button(fr_traverse, text = "ファイルを選択してください", \
@@ -220,7 +220,10 @@ class GUI:
         param_list = [self.t_pitot, self.t_HWR, self.t_n, self.t_m, self.t_out]
         param = []
         for i in param_list:
-            param.append(i.get())
+            if i == self.t_HWR:
+                param.append(i.get("1.0", "end -1c"))
+            else:
+                param.append(i.get())
         return param
     
     def get_CONparam(self):

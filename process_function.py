@@ -112,11 +112,12 @@ def fun_CON(param):
     # HWR
     hwr = HWRData()
     hwr.csv_read(param[0])
-    hwr.path = param[1]
+    hwr.path = str(param[1]).split(" ")
     hwr.file_read()
     print(hwr.df_data)
     hwr.cal_MandF()
     hwr.linearize()
+    print(hwr.df_MandF)
     velocity = hwr.convert_VtoU()
 
     # Traverse

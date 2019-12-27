@@ -3,7 +3,7 @@ December 19th 2019
             Author T.Mizumoto
 """
 #! python 3
-# ver.x1.00
+# ver.x1.10
 # HWR.py  -  this program read HWR data files
 
 import numpy as np
@@ -85,7 +85,9 @@ class HWRData:
     def file_read(self):
         ch_list = self.make_timelist()
         file_num = int(len(self.path))
+        count = 1
         for i in range(file_num):
+            print("No." + str(count) +" tdms file now loading...")
             basename = os.path.basename(self.path[i])
             basename = basename.rstrip(".tdms")
             # extract ch data
@@ -97,6 +99,7 @@ class HWRData:
             ch2_data = np.array(ch2.data)
             self.df_data[basename + "_ch1"] = ch1_data
             self.df_data[basename + "_ch2"] = ch2_data
+            count += 1
         return self.df_data
 
     # calculate mean and fluctuation
@@ -155,10 +158,9 @@ class HWRData:
         return y_pred
 
     # convert voltage to flow velocity
-    def convert_VtoU(self, name):
+    def convert_VtoU(self):
         x_lin = np.array(self.df_MandF.copy()["linearize"])
         y = [self.a * i + self.b for i in x_lin]
-        np.save(y, name)
         return y
 
 
