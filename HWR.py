@@ -3,7 +3,7 @@ December 19th 2019
             Author T.Mizumoto
 """
 #! python 3
-# ver.x1.10
+# ver.x2.00
 # HWR.py  -  this program read HWR data files
 
 import numpy as np
@@ -36,9 +36,13 @@ class HWRData:
     m = 0
     dt = 0
     NoD = 0
-    a = 0
-    b = 0
-    R2 = 0
+    a1 = 0
+    b1 = 0
+    a2 = 0
+    b2 = 0
+    c2 = 0
+    R2_1 = 0
+    R2_2 = 0
     df_data = pd.DataFrame(index = range(NoD), columns = ["time"])
     df_MandF = pd.DataFrame(columns = ["mean_ch1", "fluctuation_ch1", "mean_ch2", "fluctuation_ch2"])
         
@@ -65,9 +69,13 @@ class HWRData:
         self.E0 = float(d["E0"])
         self.n = float(d["n"])
         self.m = float(d["m"])
-        self.a = float(d["a"])
-        self.b = float(d["b"])
-        self.R2 = float(d["R2"])
+        self.a1 = float(d["a1"])
+        self.b1 = float(d["b1"])
+        self.a2 = float(d["a2"])
+        self.b2 = float(d["b2"])
+        self.c2 = float(d["c2"])
+        self.R2_1 = float(d["R2_1"])
+        self.R2_2 = float(d["R2_2"])
 
     # path is Cw_...csv
     def csv_read(self, path):
@@ -121,12 +129,14 @@ class HWRData:
 
     def save_param(self):
         return {"path": self.path, "NAME": self.NAME, "VULE1": self.VULE1, "VULE2": self.VULE2,\
-            "dt": self.dt, "NoD": self.NoD, "E0": self.E0, "n": self.n, "m": self.m, "a": self.a, "b": self.b, "R2": self.R2}
+            "dt": self.dt, "NoD": self.NoD, "E0": self.E0, "n": self.n, "m": self.m, "a1": self.a1, "b1": self.b1,\
+            "a2": self.a2, "b2": self.b2, "c2": self.c2, "R2_1": self.R2_1, "R2_2": self.R2_2}
         
 
     def save_csv(self, name):
         with open("Cw_param_" + name + ".csv", "w", encoding = "utf-8") as f:
-            fieldname = ["path", "NAME", "VULE1", "VULE2", "dt", "NoD", "E0", "n", "m", "a", "b", "R2"]
+            fieldname = ["path", "NAME", "VULE1", "VULE2", "dt", "NoD", "E0", "n", "m", "a1", "b1", \
+                "a2", "b2", "c2", "R2_1", "R2_2"]
             writer = csv.DictWriter(f, fieldnames = fieldname)
             writer.writeheader()
             writer.writerow(self.save_param())
@@ -150,24 +160,30 @@ class HWRData:
     def least_squares_M(self, np_ylist):
         x_lin = np.array(self.df_MandF.copy()["linearize"])
         y = np.array(np_ylist)
-        a_b_coefficient = np.polyfit(x_lin, y, 1)
-        self.a = a_b_coefficient[0]
-        self.b = a_b_coefficient[1]
-        y_pred = [self.a * i + self.b for i in x_lin]
-        self.R2 = fun_R2(y, y_pred)
-        return y_pred
+        D1 = np.polyfit(x_lin, y, 1)
+        D2 = np.polyfit(x_lin, y, 2)
+        self.a1 = D1[0]
+        self.b1 = D1[1]
+        self.a2 = D2[0]
+        self.b2 = D2[1]
+        self.c2 = D2[2]
+        y_D1 = [self.a1 * i + self.b1 for i in x_lin]
+        y_D2 = [self.a2 * i * i + self.b2 * i + self.c2 for i in x_lin]
+        self.R2_1 = fun_R2(y, y_D1)
+        self.R2_2 = fun_R2(y, y_D2)
+        return y_D1, y_D2
 
     # convert voltage to flow velocity
     def convert_VtoU(self):
         x_lin = np.array(self.df_MandF.copy()["linearize"])
-        y = [self.a * i + self.b for i in x_lin]
+        y = [self.a1 * i + self.b1 for i in x_lin]
         return y
 
 
 if __name__ == "__main__":
     HWR = HWRData()
     for i in range(3, 10):
-        path = "G:/W_python/exp_velocity/test-data/hwr/20191113CTA1_00" + str(i) + ".tdms"
+        path = "W_python/exp_velocity/test-data/hwr/20191113CTA1_00" + str(i) + ".tdms"
         HWR.path.append(path)
     HWR.NAME = "名称未設定"
     HWR.VULE1 = "電圧_0"

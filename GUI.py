@@ -219,11 +219,8 @@ class GUI:
     def get_CSVparam(self):
         param_list = [self.t_pitot, self.t_HWR, self.t_n, self.t_m, self.t_out]
         param = []
-        for i in param_list:
-            if i == self.t_HWR:
-                param.append(i.get("1.0", "end -1c"))
-            else:
-                param.append(i.get())
+        for i in param_list:    
+            param.append(i.get())
         return param
     
     def get_CONparam(self):

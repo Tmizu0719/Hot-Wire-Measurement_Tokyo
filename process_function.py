@@ -3,7 +3,7 @@ December 26th 2019
             Author T.Mizumoto
 """
 #! python 3
-# ver.x2.00
+# ver.x3.00
 # process_function.py  -  this program summarizes each proces
 
 from Pitot import PitotData
@@ -46,12 +46,13 @@ def fun_ROWcalib(param):
     y_pitot = pitot.df_data.astype({"U_true[m/s]": float})
     y_pitot = y_pitot["U_true[m/s]"]
     y_pitot[0] = 0
-    y_pred = hwr.least_squares_M(y_pitot)
+    y_D1, y_D2 = hwr.least_squares_M(y_pitot)
     x_lin = hwr.df_MandF["linearize"]
     graph = Graph()
-    graph.label = ["Pitot", "predict"]
+    graph.label = ["Pitot", "predict@D1", "predict@D2"]
     graph.mark(x_lin, y_pitot, 0)
-    graph.line(x_lin, y_pred, 1)
+    graph.line(x_lin, y_D1, 1)
+    graph.line(x_lin, y_D2, 2)
     graph.lim(0, 7, 0, 60)
     graph.axis_label("Voltage by HWR", "U by Pitot")
     plt.legend()
@@ -87,14 +88,15 @@ def fun_CSVcalib(param):
     
     # graph
     graph = Graph()
-    graph.label = ["Pitot", "predict"]
+    graph.label = ["Pitot", "predict@D1", "predict@D2"]
     y_pitot = pitot.df_data.astype({"U_true[m/s]": float})
     y_pitot = pitot.df_data["U_true[m/s]"]
     y_pitot[0] = 0
-    y_pred = hwr.least_squares_M(y_pitot)
+    y_D1, y_D2 = hwr.least_squares_M(y_pitot)
     x_lin = hwr.df_MandF["linearize"]
     graph.mark(x_lin, y_pitot, 0)
-    graph.line(x_lin, y_pred, 1)
+    graph.line(x_lin, y_D1, 1)
+    graph.line(x_lin, y_D2, 2)
     graph.lim(0, 7, 0, 60)
     graph.axis_label("Voltage by HWR", "U by Pitot")
     plt.legend()
