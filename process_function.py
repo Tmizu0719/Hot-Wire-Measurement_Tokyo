@@ -3,7 +3,7 @@ December 26th 2019
             Author T.Mizumoto
 """
 #! python 3
-# ver.x3.00
+# ver.x3.10
 # process_function.py  -  this program summarizes each proces
 
 from Pitot import PitotData
@@ -47,12 +47,16 @@ def fun_ROWcalib(param):
     y_pitot = y_pitot["U_true[m/s]"]
     y_pitot[0] = 0
     y_D1, y_D2 = hwr.least_squares_M(y_pitot)
+    y_D3 = hwr.D3_LSM(y_pitot)
     x_lin = hwr.df_MandF["linearize"]
+    x = hwr.df_MandF["mean_ch1"]
     graph = Graph()
-    graph.label = ["Pitot", "predict@D1", "predict@D2"]
+    graph.label = ["Pitot@Lin", "predict@D1", "predict@D2", "pred_NotLin@3", "Pitot@mean"]
     graph.mark(x_lin, y_pitot, 0)
     graph.line(x_lin, y_D1, 1)
     graph.line(x_lin, y_D2, 2)
+    graph.line(x, y_D3, 3)
+    graph.exp_mark(x, y_pitot, 4)
     graph.lim(0, 7, 0, 60)
     graph.axis_label("Voltage by HWR", "U by Pitot")
     plt.legend()
@@ -88,15 +92,19 @@ def fun_CSVcalib(param):
     
     # graph
     graph = Graph()
-    graph.label = ["Pitot", "predict@D1", "predict@D2"]
+    graph.label = ["Pitot@Lin", "predict@D1", "predict@D2", "pred_NotLin@D3", "Pitot@mean"]
     y_pitot = pitot.df_data.astype({"U_true[m/s]": float})
     y_pitot = pitot.df_data["U_true[m/s]"]
     y_pitot[0] = 0
     y_D1, y_D2 = hwr.least_squares_M(y_pitot)
+    y_D3 = hwr.D3_LSM(y_pitot)
     x_lin = hwr.df_MandF["linearize"]
+    x = hwr.df_MandF["mean_ch1"]
     graph.mark(x_lin, y_pitot, 0)
     graph.line(x_lin, y_D1, 1)
     graph.line(x_lin, y_D2, 2)
+    graph.line(x, y_D3, 3)
+    graph.exp_mark(x, y_pitot, 4)
     graph.lim(0, 7, 0, 60)
     graph.axis_label("Voltage by HWR", "U by Pitot")
     plt.legend()

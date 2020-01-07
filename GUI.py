@@ -3,7 +3,7 @@ December 26th 2019
             Author T.Mizumoto
 """
 #! python 3
-# ver.x2.10
+# ver.x2.20
 # GUI.py  -  this program is the GUI program for processing for hot wire measurement.
 
 import tkinter as tk

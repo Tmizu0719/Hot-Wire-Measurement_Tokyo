@@ -3,7 +3,7 @@ December 19th 2019
             Author T.Mizumoto
 """
 #! python 3
-# ver.x2.00
+# ver.x2.10
 # HWR.py  -  this program read HWR data files
 
 import numpy as np
@@ -41,8 +41,13 @@ class HWRData:
     a2 = 0
     b2 = 0
     c2 = 0
+    a3 = 0
+    b3 = 0
+    c3 = 0
+    d3 = 0
     R2_1 = 0
     R2_2 = 0
+    R2_3 = 0
     df_data = pd.DataFrame(index = range(NoD), columns = ["time"])
     df_MandF = pd.DataFrame(columns = ["mean_ch1", "fluctuation_ch1", "mean_ch2", "fluctuation_ch2"])
         
@@ -74,8 +79,13 @@ class HWRData:
         self.a2 = float(d["a2"])
         self.b2 = float(d["b2"])
         self.c2 = float(d["c2"])
+        self.a3 = float(d["a3"])
+        self.b3 = float(d["b3"])
+        self.c3 = float(d["c3"])
+        self.d3 = float(d["d3"])
         self.R2_1 = float(d["R2_1"])
         self.R2_2 = float(d["R2_2"])
+        self.R2_3 = float(d["R2_3"])
 
     # path is Cw_...csv
     def csv_read(self, path):
@@ -130,13 +140,14 @@ class HWRData:
     def save_param(self):
         return {"path": self.path, "NAME": self.NAME, "VULE1": self.VULE1, "VULE2": self.VULE2,\
             "dt": self.dt, "NoD": self.NoD, "E0": self.E0, "n": self.n, "m": self.m, "a1": self.a1, "b1": self.b1,\
-            "a2": self.a2, "b2": self.b2, "c2": self.c2, "R2_1": self.R2_1, "R2_2": self.R2_2}
+            "a2": self.a2, "b2": self.b2, "c2": self.c2, "a3": self.a3, "b3": self.b3, "c3": self.c3, "d3": self.d3, \
+            "R2_1": self.R2_1, "R2_2": self.R2_2, "R2_3": self.R2_3}
         
 
     def save_csv(self, name):
         with open("Cw_param_" + name + ".csv", "w", encoding = "utf-8") as f:
             fieldname = ["path", "NAME", "VULE1", "VULE2", "dt", "NoD", "E0", "n", "m", "a1", "b1", \
-                "a2", "b2", "c2", "R2_1", "R2_2"]
+                "a2", "b2", "c2", "a3", "b3", "c3", "d3","R2_1", "R2_2", "R2_3"]
             writer = csv.DictWriter(f, fieldnames = fieldname)
             writer.writeheader()
             writer.writerow(self.save_param())
@@ -156,7 +167,7 @@ class HWRData:
         self.df_MandF = self.df_MandF[["linearize", "mean_ch1", "mean_ch2", "fluctuation_ch1", "fluctuation_ch2"]]
         return self.df_MandF
     
-    # least squares method: find "a" and "b"
+    # least squares method: find "a", "b"(Dimention 1) and "c"(Dimention 2)
     def least_squares_M(self, np_ylist):
         x_lin = np.array(self.df_MandF.copy()["linearize"])
         y = np.array(np_ylist)
@@ -168,10 +179,22 @@ class HWRData:
         self.b2 = D2[1]
         self.c2 = D2[2]
         y_D1 = [self.a1 * i + self.b1 for i in x_lin]
-        y_D2 = [self.a2 * i * i + self.b2 * i + self.c2 for i in x_lin]
+        y_D2 = [self.a2 * i ** 2 + self.b2 * i + self.c2 for i in x_lin]
         self.R2_1 = fun_R2(y, y_D1)
         self.R2_2 = fun_R2(y, y_D2)
         return y_D1, y_D2
+
+    def D3_LSM(self, np_ylist):
+        x = np.array(self.df_MandF.copy()["mean_ch1"])
+        y = np.array(np_ylist)
+        D3 = np.polyfit(x, y, 3)
+        self.a3 = D3[0]
+        self.b3 = D3[1]
+        self.c3 = D3[2]
+        self.d3 = D3[3]
+        y_D3 = [self.a3 * i ** 3 + self.b3 * i ** 2 + self.c3 * i + self.d3 for i in x]
+        self.R2_3 = fun_R2(y, y_D3)
+        return y_D3
 
     # convert voltage to flow velocity
     def convert_VtoU(self):
