@@ -3,7 +3,7 @@ December 19th 2019
             Author T.Mizumoto
 """
 #! python 3
-# ver.x2.10
+# ver.x2.20
 # HWR.py  -  this program read HWR data files
 
 import numpy as np
@@ -144,16 +144,16 @@ class HWRData:
             "R2_1": self.R2_1, "R2_2": self.R2_2, "R2_3": self.R2_3}
         
 
-    def save_csv(self, name):
-        with open("Cw_param_" + name + ".csv", "w", encoding = "utf-8") as f:
+    def save_csv(self, name, folder):
+        with open(folder + "/" + "Cw_param_" + name + ".csv", "w", encoding = "utf-8") as f:
             fieldname = ["path", "NAME", "VULE1", "VULE2", "dt", "NoD", "E0", "n", "m", "a1", "b1", \
                 "a2", "b2", "c2", "a3", "b3", "c3", "d3","R2_1", "R2_2", "R2_3"]
             writer = csv.DictWriter(f, fieldnames = fieldname)
             writer.writeheader()
             writer.writerow(self.save_param())
             f.close()
-        self.df_data.to_csv("Cw_" + name + ".csv")
-        self.df_MandF.to_csv("Cw_MandF_" + name + ".csv")
+        self.df_data.to_csv(folder + "/" + "Cw_" + name + ".csv")
+        self.df_MandF.to_csv(folder + "/" + "Cw_MandF_" + name + ".csv")
 
     # linearization processing 
     def linearize(self):

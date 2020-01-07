@@ -3,7 +3,7 @@ December 26th 2019
             Author T.Mizumoto
 """
 #! python 3
-# ver.x3.10
+# ver.x3.20
 # process_function.py  -  this program summarizes each proces
 
 from Pitot import PitotData
@@ -12,6 +12,14 @@ from graph import Graph
 import matplotlib.pyplot as plt
 from traverse import TraverseData
 import pandas as pd
+import os
+
+def fun_mkdir(name):
+    cwd_name = os.getcwd()
+    judge_path = os.path.exists(cwd_name + "/" + name)
+    if judge_path == False:
+        os.makedirs(cwd_name + "/" + name)
+    
 
 def fun_ROWcalib(param):
     param = param
@@ -32,7 +40,7 @@ def fun_ROWcalib(param):
     
     # pitot
     pitot.file_read()
-    pitot.save_csv(output_name)
+    #pitot.save_csv(output_name)
     print(pitot.df_data)
 
     # HWR
@@ -62,9 +70,11 @@ def fun_ROWcalib(param):
     plt.legend()
 
     # save
-    graph.save_graph("Cg_" + output_name)
-    pitot.save_csv(output_name)
-    hwr.save_csv(output_name)
+    folder_name = "Calib_dest"
+    fun_mkdir(folder_name)
+    graph.save_graph(folder_name + "/" + "Cg_" + output_name)
+    pitot.save_csv(output_name, folder_name)
+    hwr.save_csv(output_name, folder_name)
     graph.show()
 
 def fun_CSVcalib(param):
@@ -110,9 +120,10 @@ def fun_CSVcalib(param):
     plt.legend()
 
     # save
-    graph.save_graph("Cg_" + output_name)
-    pitot.save_csv(output_name)
-    hwr.save_csv(output_name)
+    folder_name = "Calib_dest"
+    graph.save_graph(folder_name + "/" + "Cg_" + output_name)
+    pitot.save_csv(output_name, folder_name)
+    hwr.save_csv(output_name, folder_name)
     graph.show()
 
 def fun_CON(param):

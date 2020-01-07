@@ -3,7 +3,7 @@ December 19th 2019
             Author T.Mizumoto
 """
 #! python 3
-# ver.x1.00
+# ver.x1.10
 # Pitot.py  -  this program read pitot data files
 
 import numpy as np
@@ -42,8 +42,8 @@ class PitotData:
         self.df_data = pd.read_csv(path, header = 0, index_col = 0)
         self.path = list(self.df_data.index + ".lvm")
         
-    def save_csv(self, name):
-        return self.df_data.to_csv("Cp_" + name + ".csv")
+    def save_csv(self, name, folder):
+        return self.df_data.to_csv(folder + "/" + "Cp_" + name + ".csv")
 
 
 if __name__ == "__main__":
