@@ -17,7 +17,7 @@ class PitotData:
     
     def U_corection(self, np_data):
         if np_data[1] < 0 or np_data[3] < 0:
-            U_true = "nan"
+            U_true = 0
         else:
             U_true = np.sqrt(2 * np_data[1] * 1000 /np_data[3])
         np_data = np.append(np_data, U_true)

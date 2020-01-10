@@ -3,7 +3,7 @@ December 26th 2019
             Author T.Mizumoto
 """
 #! python 3
-# ver.x3.20
+# ver.x3.21
 # process_function.py  -  this program summarizes each proces
 
 from Pitot import PitotData
@@ -72,10 +72,13 @@ def fun_ROWcalib(param):
     # save
     folder_name = "Calib_dest"
     fun_mkdir(folder_name)
-    graph.save_graph(folder_name + "/" + "Cg_" + output_name)
-    pitot.save_csv(output_name, folder_name)
-    hwr.save_csv(output_name, folder_name)
+    outfolder_name = folder_name + "/" + output_name
+    fun_mkdir(outfolder_name)
+    graph.save_graph(outfolder_name + "/" + "Cg_" + output_name)
+    pitot.save_csv(output_name, outfolder_name)
+    hwr.save_csv(output_name, outfolder_name)
     graph.show()
+
 
 def fun_CSVcalib(param):
     param = param
@@ -121,10 +124,14 @@ def fun_CSVcalib(param):
 
     # save
     folder_name = "Calib_dest"
-    graph.save_graph(folder_name + "/" + "Cg_" + output_name)
-    pitot.save_csv(output_name, folder_name)
-    hwr.save_csv(output_name, folder_name)
+    fun_mkdir(folder_name)
+    outfolder_name = folder_name + "/" + output_name
+    fun_mkdir(outfolder_name)
+    graph.save_graph(outfolder_name + "/" + "Cg_" + output_name)
+    pitot.save_csv(output_name, outfolder_name)
+    hwr.save_csv(output_name, outfolder_name)
     graph.show()
+
 
 def fun_CON(param):
     param = param
@@ -162,7 +169,9 @@ def fun_CON(param):
     plt.legend()
 
     # save
+    folder_name = "FLOW_data"
+    fun_mkdir(folder_name)
     df_VandC = pd.DataFrame([velocity, coordinate], columns = ["velocity", "coordinate"], index = range(len(velocity)))
-    df_VandC.to_csv(output_name + "csv")
-    graph.save_graph(output_name + "png")
+    df_VandC.to_csv(folder_name + "/" + output_name + "csv")
+    graph.save_graph(folder_name + "/" + output_name + "png")
     graph.show()

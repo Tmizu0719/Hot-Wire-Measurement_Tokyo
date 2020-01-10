@@ -3,7 +3,7 @@ December 19th 2019
             Author T.Mizumoto
 """
 #! python 3
-# ver.x2.20
+# ver.x2.21
 # HWR.py  -  this program read HWR data files
 
 import numpy as np
@@ -158,7 +158,7 @@ class HWRData:
     # linearization processing 
     def linearize(self):
         HWR_ch1 = self.df_MandF.copy()["mean_ch1"]
-        self.E0 = HWR_ch1[0]
+        self.E0 = min(HWR_ch1)
         HWR_lin = []
         for i in range(len(HWR_ch1)):
             lin = fun_linearize(HWR_ch1[i], self.E0, self.n, self.m)
