@@ -3,7 +3,7 @@ December 19th 2019
             Author T.Mizumoto
 """
 #! python 3
-# ver.x2.21
+# ver.x2.23
 # HWR.py  -  this program read HWR data files
 
 import numpy as np
@@ -87,6 +87,12 @@ class HWRData:
         self.R2_2 = float(d["R2_2"])
         self.R2_3 = float(d["R2_3"])
 
+    def separate_csvpath(self, path):
+        csvname = os.path.basename(path)
+        orgname = csvname.lstrip("Cw_")
+        address = path.rstrip(csvname)
+        return address, orgname
+
     # path is Cw_...csv
     def csv_read(self, path):
         csvname = os.path.basename(path)
@@ -167,6 +173,17 @@ class HWRData:
         self.df_MandF = self.df_MandF[["linearize", "mean_ch1", "mean_ch2", "fluctuation_ch1", "fluctuation_ch2"]]
         return self.df_MandF
     
+    # linearization: skip "E0"
+    def linearize_skip(self):
+        HWR_ch1 = self.df_MandF.copy()["mean_ch1"]
+        HWR_lin = []
+        for i in range(len(HWR_ch1)):
+            lin = fun_linearize(HWR_ch1[i], self.E0, self.n, self.m)
+            HWR_lin.append(lin)
+        self.df_MandF["linearize"] = HWR_lin
+        self.df_MandF = self.df_MandF[["linearize", "mean_ch1", "mean_ch2", "fluctuation_ch1", "fluctuation_ch2"]]
+        return self.df_MandF
+
     # least squares method: find "a", "b"(Dimention 1) and "c"(Dimention 2)
     def least_squares_M(self, np_ylist):
         x_lin = np.array(self.df_MandF.copy()["linearize"])
@@ -182,7 +199,8 @@ class HWRData:
         y_D2 = [self.a2 * i ** 2 + self.b2 * i + self.c2 for i in x_lin]
         self.R2_1 = fun_R2(y, y_D1)
         self.R2_2 = fun_R2(y, y_D2)
-        return y_D1, y_D2
+        print("least squares method (Dimention 1 and 2) calculated!")
+        return np.array(y_D1), np.array(y_D2)
 
     def D3_LSM(self, np_ylist):
         x = np.array(self.df_MandF.copy()["mean_ch1"])
@@ -194,13 +212,18 @@ class HWRData:
         self.d3 = D3[3]
         y_D3 = [self.a3 * i ** 3 + self.b3 * i ** 2 + self.c3 * i + self.d3 for i in x]
         self.R2_3 = fun_R2(y, y_D3)
-        return y_D3
+        print("least squares method (Dimention 3) calculated!")
+        return np.array(y_D3)
 
     # convert voltage to flow velocity
     def convert_VtoU(self):
+        x = np.array(self.df_MandF.copy()["mean_ch1"])
         x_lin = np.array(self.df_MandF.copy()["linearize"])
-        y = [self.a1 * i + self.b1 for i in x_lin]
-        return y
+        y1 = [self.a1 * i + self.b1 for i in x_lin]
+        y2 = [self.a2 * i ** 2 + self.b2 * i + self.c2 for i in x_lin]
+        y3 = [self.a3 * i ** 3 + self.b3 * i ** 2 + self.c3 * i + self.d3 for i in x]
+        y_list = [y1, y2, y3]
+        return y_list
 
 
 if __name__ == "__main__":

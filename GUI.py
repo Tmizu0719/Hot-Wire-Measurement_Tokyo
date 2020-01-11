@@ -152,7 +152,7 @@ class GUI:
         fr_cal = tk.LabelFrame(con, text = "熱線の校正データ(Cw_)", foreground = "green", font = ("Arial", 12))
         bt_cal = tk.Button(fr_cal, text = "ファイルを選択してください", \
             command = lambda: self.get_filepath("csv", "cal"), width = 30, height = 1, font = ("Arial", 10), bg = "#ffbbbb")
-        self.t_cal = tk.Entry(fr_cal, font = ("Arial", 8), width = 60)
+        self.t_cal = tksc.ScrolledText(fr_cal, font = ("Arial", 8), wrap = tk.WORD, height = 10)
         # HWR
         fr_HWR = tk.LabelFrame(con, text = "熱線計測データ(.tdms)", foreground = "green", font = ("Arial", 12))
         bt_HWR = tk.Button(fr_HWR, text = "ファイルを選択してください", \
@@ -161,7 +161,7 @@ class GUI:
         # Traverse
         fr_traverse = tk.LabelFrame(con, text = "座標点データ", foreground = "green", font = ("Arial", 12))
         bt_traverse = tk.Button(fr_traverse, text = "ファイルを選択してください", \
-            command = lambda: self.get_filepath("csv", "traverse"), width = 30, height = 1, font = ("Arial", 10), bg = "#ffbbbb")
+            command = lambda: self.get_filepath("lvm", "traverse"), width = 30, height = 1, font = ("Arial", 10), bg = "#ffbbbb")
         self.t_traverse = tk.Entry(fr_traverse, font = ("Arial", 8), width = 60)
         # select axis
         fr_axis = tk.LabelFrame(con, text = "使用する座標軸を選択してください", foreground = "green", font = ("Arial", 12))
@@ -226,8 +226,13 @@ class GUI:
     def get_CONparam(self):
         param_list = [self.t_cal, self.t_HWR, self.t_traverse, self.var, self.t_out]
         param = []
+        count = 0
         for i in param_list:
-            param.append(i.get())
+            if count <= 1:
+                param.append(i.get("1.0", "end -1c"))
+            else:
+                param.append(i.get())
+            count += 1
         return param
 
 if __name__ == "__main__":

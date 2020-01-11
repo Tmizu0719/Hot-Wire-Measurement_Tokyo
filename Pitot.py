@@ -48,11 +48,13 @@ class PitotData:
 
 if __name__ == "__main__":
     PD = PitotData()
-    for i in range(4, 11):
-        path = "D:/W_python/exp_velocity/test-data/pitot/20191113_VEL_00" + str(i) + ".lvm"
+    for i in range(1, 16):
+        path = "test-data/20200106/beging_calib/20200106_VEL_00" + str(i) + ".lvm"
         if i >= 10:
-            path = "D:/W_python/exp_velocity/test-data/pitot/20191113_VEL_0" + str(i) + ".lvm"
+            path = "test-data/20200106/beging_calib/20200106_VEL_0" + str(i) + ".lvm"
         PD.path.append(path)
     #PD.path = ["exp_velocity/test-data/pitot/20191113_VEL_005.lvm", "exp_velocity/test-data/pitot/20191113_VEL_006.lvm"]
-    print(PD.file_read())
-    PD.save_csv("Pitot_test")
+    PD.file_read()
+    print(PD.df_data)
+    print(PD.df_data.sort_values("U_true[m/s]"))
+    #PD.save_csv("Pitot_test")
